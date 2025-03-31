@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('logo');
+            $table->string('stadium');
             $table->integer('strength')->default(50);
             $table->timestamps();
         });

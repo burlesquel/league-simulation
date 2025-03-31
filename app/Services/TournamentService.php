@@ -7,16 +7,53 @@ use App\Models\Team;
 class TournamentService
 {
     public $dummy_teams = [
-        [ "name" => "Westford Lions", "logo" => "westford.png" ],
-        [ "name" => "Eastbridge United", "logo" => "eastbridge.png" ],
-        [ "name" => "Southport Strikers", "logo" => "southport.png" ],
-        [ "name" => "Ashbourne Falcons", "logo" => "ashbourne.png" ],
-        [ "name" => "Blackhill Warriors", "logo" => "blackhill.png" ],
-        [ "name" => "Redmere Rangers", "logo" => "redmere.png" ],
-        [ "name" => "Grimshaw Titans", "logo" => "grimshaw.png" ],
-        [ "name" => "Lancaster Wolves", "logo" => "lancaster.png" ],
-        [ "name" => "Whitestone Wanderers", "logo" => "whitestone.png" ]
+        [ 
+            "name" => "Westford Lions", 
+            "logo" => "westford.png", 
+            "stadium" => "Lionsgate Stadium"
+        ],
+        [ 
+            "name" => "Eastbridge United", 
+            "logo" => "eastbridge.png", 
+            "stadium" => "Bridgeview Arena"
+        ],
+        [ 
+            "name" => "Southport Strikers", 
+            "logo" => "southport.png", 
+            "stadium" => "Southport Park"
+        ],
+        [ 
+            "name" => "Ashbourne Falcons", 
+            "logo" => "ashbourne.png", 
+            "stadium" => "Falconridge Arena"
+        ],
+        [ 
+            "name" => "Blackhill Warriors", 
+            "logo" => "blackhill.png", 
+            "stadium" => "Ironclad Stadium"
+        ],
+        [ 
+            "name" => "Redmere Rangers", 
+            "logo" => "redmere.png", 
+            "stadium" => "Redmere Grounds"
+        ],
+        [ 
+            "name" => "Grimshaw Titans", 
+            "logo" => "grimshaw.png", 
+            "stadium" => "Titan Stadium"
+        ],
+        [ 
+            "name" => "Lancaster Wolves", 
+            "logo" => "lancaster.png", 
+            "stadium" => "Wolves' Den"
+        ],
+        [ 
+            "name" => "Whitestone Wanderers", 
+            "logo" => "whitestone.png", 
+            "stadium" => "Stonegate Field"
+        ]
     ];
+
     public function createTournament(string $name)
     {
         return Tournament::create(['name' => $name]);
@@ -29,6 +66,7 @@ class TournamentService
                 Team::create([
                     'name' => $dummy_team['name'],
                     'logo' => $dummy_team['logo'],
+                    'stadium' => $dummy_team['stadium'],
                     'strength' => rand(10, 100)
                 ]);
             }
@@ -49,23 +87,23 @@ class TournamentService
         // Generate first round-robin schedule
         for ($round = 0; $round < $totalTeams - 1; $round++) {
             for ($i = 0; $i < $gamesPerWeek; $i++) {
-                $team1 = $teamIds[$i];
-                $team2 = $teamIds[$totalTeams - 1 - $i];
+                $team1 = $teams[$i];
+                $team2 = $teams[$totalTeams - 1 - $i];
     
                 // Ensure home and away matches are created
                 $matches[] = Game::create([
                     'tournament_id' => $tournament->id,
                     'week' => $round + 1,
-                    'team1_id' => $team1,
-                    'team2_id' => $team2
+                    'team1_id' => $team1["id"],
+                    'team2_id' => $team2["id"]
                 ]);
     
                 // Reverse the home and away for the second half of the season
                 $matches[] = Game::create([
                     'tournament_id' => $tournament->id,
                     'week' => $round + $totalTeams,
-                    'team1_id' => $team2,
-                    'team2_id' => $team1
+                    'team1_id' => $team2["id"],
+                    'team2_id' => $team1["id"]
                 ]);
             }
     

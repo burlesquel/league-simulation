@@ -1,0 +1,14 @@
+.tournament-active{
+    background-color: #ff2f08;
+    color:white
+}
+
+.tournament-passive{
+    background-color: #c4c4c4;
+    color:black
+}
+
+.tournament-finished{
+    background-color: #0b6e4f;
+    color:white
+}

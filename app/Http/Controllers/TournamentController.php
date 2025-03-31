@@ -17,9 +17,10 @@ class TournamentController extends Controller
 
     public function create()
     {
-        $tournament = $this->tournamentService->createTournament("New Tournament");
         // We generate teams if they don't exist
         $teams = $this->tournamentService->generateTeams();
+        
+        $tournament = $this->tournamentService->createTournament("New Tournament");
         // We select 4 random teams among all teams
         $tournament_teams = [];
         $random_keys = array_rand($teams, 4);
@@ -29,31 +30,31 @@ class TournamentController extends Controller
         // We generate matches. Each team will make 2 matches with every other team
         $this->tournamentService->generateMatches($tournament, $tournament_teams);
         // We refetch the tournament data with matches and standings
-        $tournament = Tournament::with('matches')->findOrFail($tournament->id)->append(['standings']);
-        return response()->json(['message' => 'Tournament created!', 'tournament' => $tournament]);
+        // $tournament = Tournament::with('matches')->findOrFail($tournament->id)->append(['standings', 'teams']);
+        return response()->json(['message' => 'Tournament created!', 'tournament_id' => $tournament->id]);
     }
 
     public function simulate($id)
     {
         $tournament = Tournament::findOrFail($id);
         $this->tournamentService->simulateMatches($tournament);
-
-        return response()->json(['message' => 'Tournament simulated!', 'matches' => $tournament->g]);
+        $tournament = Tournament::with('matches')->findOrFail($tournament->id)->append(['standings', 'teams']);
+        return response()->json(['message' => 'Tournament simulated!', 'matches' => $tournament]);
     }
 
-    public function tournaments(){
+    public function tournaments()
+    {
         $all_tournaments = Tournament::all();
         return response()->json(['message' => 'Tournaments', 'tournaments' => $all_tournaments]);
     }
 
-    public function tournament($id){
+    public function tournament($id)
+    {
         $tournament = Tournament::with('matches')->findOrFail($id)->append(['standings']);
         return response()->json(['message' => 'Tournament', 'tournament' => $tournament]);
     }
 
-    public function standings($id)
-    {
-        $tournament = Tournament::findOrFail($id);
-
+    public function globalRanking(){
+        
     }
 }

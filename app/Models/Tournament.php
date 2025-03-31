@@ -10,7 +10,7 @@ class Tournament extends Model
     use HasFactory;
 
     protected $fillable = ['name', 'current_week'];
-    protected $appends = ['standings'];
+    protected $appends = ['standings', 'teams'];
 
     public function matches()
     {
@@ -21,54 +21,55 @@ class Tournament extends Model
     {
         $matches = $this->matches()->get();
         $teamStats = [];
+        $teamInfo = [];
 
         foreach ($matches as $match) {
             // Get both teams
-            $team1 = $match->team1_id;
-            $team2 = $match->team2_id;
+            $team1_id = $match->team1_id;
+            $team2_id = $match->team2_id;
             $goals1 = $match->team1_goals;
             $goals2 = $match->team2_goals;
 
             // Initialize teams in standings if not already set
-            if (!isset($teamStats[$team1])) {
-                $teamStats[$team1] = ['team_id' => $team1, 'played' => 0, 'wins' => 0, 'draws' => 0, 'losses' => 0, 'goals_for' => 0, 'goals_against' => 0, 'goal_difference' => 0, 'points' => 0];
+            if (!isset($teamStats[$team1_id])) {
+                $teamStats[$team1_id] = ['team_id' => $team1_id, 'played' => 0, 'wins' => 0, 'draws' => 0, 'losses' => 0, 'goals_for' => 0, 'goals_against' => 0, 'goal_difference' => 0, 'points' => 0];
             }
-            if (!isset($teamStats[$team2])) {
-                $teamStats[$team2] = ['team_id' => $team2, 'played' => 0, 'wins' => 0, 'draws' => 0, 'losses' => 0, 'goals_for' => 0, 'goals_against' => 0, 'goal_difference' => 0, 'points' => 0];
+            if (!isset($teamStats[$team2_id])) {
+                $teamStats[$team2_id] = ['team_id' => $team2_id, 'played' => 0, 'wins' => 0, 'draws' => 0, 'losses' => 0, 'goals_for' => 0, 'goals_against' => 0, 'goal_difference' => 0, 'points' => 0];
             }
 
             if ($match->finished) {
                 // Update match statistics for both teams
-                $teamStats[$team1]['played']++;
-                $teamStats[$team2]['played']++;
+                $teamStats[$team1_id]['played']++;
+                $teamStats[$team2_id]['played']++;
 
-                $teamStats[$team1]['goals_for'] += $goals1;
-                $teamStats[$team1]['goals_against'] += $goals2;
-                $teamStats[$team2]['goals_for'] += $goals2;
-                $teamStats[$team2]['goals_against'] += $goals1;
+                $teamStats[$team1_id]['goals_for'] += $goals1;
+                $teamStats[$team1_id]['goals_against'] += $goals2;
+                $teamStats[$team2_id]['goals_for'] += $goals2;
+                $teamStats[$team2_id]['goals_against'] += $goals1;
                 // Calculate results
                 if ($goals1 > $goals2) {
                     // Team 1 wins
-                    $teamStats[$team1]['wins']++;
-                    $teamStats[$team1]['points'] += 3;
-                    $teamStats[$team2]['losses']++;
+                    $teamStats[$team1_id]['wins']++;
+                    $teamStats[$team1_id]['points'] += 3;
+                    $teamStats[$team2_id]['losses']++;
                 } elseif ($goals1 < $goals2) {
                     // Team 2 wins
-                    $teamStats[$team2]['wins']++;
-                    $teamStats[$team2]['points'] += 3;
-                    $teamStats[$team1]['losses']++;
+                    $teamStats[$team2_id]['wins']++;
+                    $teamStats[$team2_id]['points'] += 3;
+                    $teamStats[$team1_id]['losses']++;
                 } else {
                     // Draw
-                    $teamStats[$team1]['draws']++;
-                    $teamStats[$team2]['draws']++;
-                    $teamStats[$team1]['points'] += 1;
-                    $teamStats[$team2]['points'] += 1;
+                    $teamStats[$team1_id]['draws']++;
+                    $teamStats[$team2_id]['draws']++;
+                    $teamStats[$team1_id]['points'] += 1;
+                    $teamStats[$team2_id]['points'] += 1;
                 }
             }
 
             // Update goal difference
-            $teamStats[$team1]['goal_difference'] = $teamStats[$team1]['goals_for'] - $teamStats[$team1]['goals_against'];
-            $teamStats[$team2]['goal_difference'] = $teamStats[$team2]['goals_for'] - $teamStats[$team2]['goals_against'];
+            $teamStats[$team1_id]['goal_difference'] = $teamStats[$team1_id]['goals_for'] - $teamStats[$team1_id]['goals_against'];
+            $teamStats[$team2_id]['goal_difference'] = $teamStats[$team2_id]['goals_for'] - $teamStats[$team2_id]['goals_against'];
         }
 
         // Convert to array and sort
@@ -80,5 +81,21 @@ class Tournament extends Model
         });
 
         return $standings;
+    }
+
+    public function getTeamsAttribute()
+    {
+        $matches = $this->matches()->get();
+        $teams = [];
+        foreach ($matches as $match) {
+            // Set team information to be used in front
+            if (!isset($teams[$match->team1_id])) {
+                $teams[$match->team1_id] = $match->team1;
+            }
+            if (!isset($teams[$match->team2_id])) {
+                $teams[$match->team2_id] = $match->team2;
+            }
+        }
+        return $teams;
     }
 }
