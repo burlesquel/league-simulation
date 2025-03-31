@@ -1,5 +1,5 @@
 .tournament-active{
-    background-color: #ff2f08;
+    background-color: #fd674c;
     color:white
 }
 
@@ -9,6 +9,6 @@
 }
 
 .tournament-finished{
-    background-color: #0b6e4f;
+    background-color: #3678d5;
     color:white
 }

@@ -16,9 +16,10 @@
         
     </head>
     <div class="py-5 d-flex flex-row justify-content-center">
-        <img style="width:15rem" src="{{asset('logos/league-logo.png')}}" alt="">
+        <img style="width:12rem" src="{{asset('logos/league-logo.png')}}" alt="">
     </div>
     {{ $slot }}
+    <script src="{{asset('assets/js/jquery.min.js')}}" crossorigin="anonymous"></script>
     <script src="{{asset('assets/js/bootstrap.bundle.js')}}" crossorigin="anonymous"></script>
     <script src="{{asset('assets/js/vue.js')}}" crossorigin="anonymous"></script>
     @stack('scripts')

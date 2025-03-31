@@ -32,21 +32,30 @@ const app = createApp({
                     globalRankings[standing.team_id] = standing
                 }
             }
-            return Object.values(globalRankings).sort((a,b) => a.wins - b.wins)
+            return Object.values(globalRankings).sort((a,b) => b.points - a.points)
         })
 
-        onMounted(async () => {
-            let tournamentsResponse = await (await fetch("/tournaments")).json()
-
-            console.log(tournamentsResponse);
-            
+        async function fetchTournaments(){
+            let tournamentsResponse = await $.get("/tournaments")
             tournaments.value = tournamentsResponse.tournaments
+        }
+
+        async function createTournament(){
+            let tournamentResponse = await $.get("/tournament/create")
+            fetchTournaments()
+            console.log(tournamentResponse.tournament_id);
+        }
+
+        onMounted(async () => {
+            await fetchTournaments()
         })
 
         return {
             tournaments,
             teamDetails,
-            globalStandings
+            globalStandings,
+            fetchTournaments,
+            createTournament
         }
     },
 })

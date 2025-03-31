@@ -3,6 +3,7 @@ namespace App\Services;
 use App\Models\Game;
 use App\Models\Tournament;
 use App\Models\Team;
+use PhpParser\Node\Expr\BinaryOp\BooleanAnd;
 
 class TournamentService
 {
@@ -113,23 +114,35 @@ class TournamentService
     
         return $matches;
     }
-    public function simulateMatches(Tournament $tournament)
-    {
-        foreach ($tournament->matches as $match) {
-            // If there are scores, that means this match was already played
-            if ($match->finished) {
-                continue;
+
+    public function simulateMatch(Tournament $tournament){
+        $nextWeek = $tournament->current_week + 1;
+        foreach ($tournament->matches as $match){
+            if($match->week === $nextWeek && !$match->finished){
+                // Play the game here...
+                // 1- If the team is the home team, we add 10 strength boost
+                if($match->home_team->id === $match->team1_id){
+                    $match->team1->strength = + 10;
+                }
+                $team1Goals = rand(0, max(1, $match->team1->strength / 20));
+                $team2Goals = rand(0, max(1, $match->team2->strength / 20));
+                // 2- We add 10 strength for the winner team, substract 10 strength for the loser team
+                if($team1Goals > $team2Goals){
+                    $match->team1->strength = $match->team1->strength + 10;
+                }
+                else if($team2Goals > $team1Goals){
+                    $match->team2->strength = $match->team2->strength + 10;
+                }
+                $match->team1->save();
+                $match->team2->save();
+                $match->update([
+                    'team1_goals' => $team1Goals,
+                    'team2_goals' => $team2Goals
+                ]);
             }
-
-            // Will find a better real-life logic for playing
-            $team1Goals = rand(0, max(1, $match->team1->strength / 20));
-            $team2Goals = rand(0, max(1, $match->team2->strength / 20));
-
-            // Save results
-            $match->update([
-                'team1_goals' => $team1Goals,
-                'team2_goals' => $team2Goals
-            ]);
-        }
+        };
+        $tournament->update([
+            "current_week" => $nextWeek
+        ]);
     }
 }

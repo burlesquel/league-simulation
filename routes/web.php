@@ -7,6 +7,9 @@ Route::get('/', function () {
     return view('main');
 });
 
+Route::get('/league/{id}', function ($id) {
+    return view('tournament',  ["id" => $id]);
+});
 
 Route::get('/tournament/create', [TournamentController::class, 'create']);
 Route::get('/tournament/{id}/simulate', [TournamentController::class, 'simulate']);

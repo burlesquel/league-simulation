@@ -34,6 +34,6 @@ class Game extends Model
     }
 
     public function getFinishedAttribute(){
-        return !empty($this->team1_goals) && !empty($this->team2_goals);
+        return $this->team1_goals !== null && $this->team2_goals !== null;
     }
 }

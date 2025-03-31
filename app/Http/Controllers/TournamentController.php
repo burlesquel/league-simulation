@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Http\Request;
 use App\Services\TournamentService;
 use App\Models\Tournament;
 use App\Models\Team;
@@ -34,12 +35,24 @@ class TournamentController extends Controller
         return response()->json(['message' => 'Tournament created!', 'tournament_id' => $tournament->id]);
     }
 
-    public function simulate($id)
+    public function simulate(Request $request, $id)
     {
         $tournament = Tournament::findOrFail($id);
-        $this->tournamentService->simulateMatches($tournament);
+        // We get the last week number to determine how many steps we should continue
+        $lastWeek = max(array_column($tournament->matches->toArray(), "week"));
+        // If the current week is equal to the max week, we do not continue
+        if($tournament->current_week === $lastWeek){
+            return response()->json(['message' => 'Tournament simulation failed. Leauge already finished.'], 400);
+        }
+        $simulateStep = 1;
+        if($request->get("simulate_all")){
+            $simulateStep = $lastWeek - $tournament->current_week;
+        }
+        for ($i=0; $i < $simulateStep; $i++) { 
+            $this->tournamentService->simulateMatch($tournament);
+        }
         $tournament = Tournament::with('matches')->findOrFail($tournament->id)->append(['standings', 'teams']);
-        return response()->json(['message' => 'Tournament simulated!', 'matches' => $tournament]);
+        return response()->json(['message' => 'Tournament simulated!', 'tournament' => $tournament]);
     }
 
     public function tournaments()
@@ -50,11 +63,7 @@ class TournamentController extends Controller
 
     public function tournament($id)
     {
-        $tournament = Tournament::with('matches')->findOrFail($id)->append(['standings']);
+        $tournament = Tournament::with('matches')->findOrFail($id)->append(['standings', 'teams']);
         return response()->json(['message' => 'Tournament', 'tournament' => $tournament]);
-    }
-
-    public function globalRanking(){
-        
     }
 }
