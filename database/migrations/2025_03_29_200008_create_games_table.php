@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('games', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tournament_id')->constrained()->onDelete('cascade');
+            $table->integer('week')->unsigned();
             $table->foreignId('team1_id')->constrained('teams')->onDelete('cascade');
             $table->foreignId('team2_id')->constrained('teams')->onDelete('cascade');
             $table->integer('team1_goals')->nullable();

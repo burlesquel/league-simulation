@@ -8,5 +8,10 @@ class Team extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'strength'];
+    protected $fillable = ['name', 'logo', 'strength'];
+
+    public function matches()
+    {
+        return $this->belongsToMany(Game::class);
+    }
 }

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('tournaments', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->integer('current_week')->default(0);
             $table->timestamps();
         });
     }

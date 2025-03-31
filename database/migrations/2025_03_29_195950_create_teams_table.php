@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('teams', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('logo');
             $table->integer('strength')->default(50);
             $table->timestamps();
         });

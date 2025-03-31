@@ -9,7 +9,9 @@ class Game extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['tournament_id', 'team1_id', 'team2_id', 'team1_goals', 'team2_goals'];
+    protected $fillable = ['tournament_id', 'week', 'team1_id', 'team2_id', 'team1_goals', 'team2_goals'];
+
+    protected $appends = ['finished'];
 
     public function tournament()
     {
@@ -24,5 +26,14 @@ class Game extends Model
     public function team2()
     {
         return $this->belongsTo(Team::class, 'team2_id');
+    }
+
+    public function home_team()
+    {
+        return $this->team1();
+    }
+
+    public function getFinishedAttribute(){
+        return !empty($this->team1_goals) && !empty($this->team2_goals);
     }
 }
